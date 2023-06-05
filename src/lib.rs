@@ -1,6 +1,7 @@
 pub mod conf;
-use std::fs::{copy, File};
+use std::fs::{copy, read_dir, File};
 use std::io::{BufReader, Read};
+use std::path::PathBuf;
 use std::process::Command;
 
 pub fn actualizar_directorio(dir_base: String, dir_copia: String) {
@@ -22,38 +23,49 @@ pub fn actualizar_directorio(dir_base: String, dir_copia: String) {
                 .len()
                 != 0
             {
-                match Command::new("rm")
+                Command::new("rm")
                     .arg("-rf")
                     .arg(&dir_copia)
                     .spawn()
                     .expect("No se pudo eliminar")
                     .wait()
-                    .and_then(|_| {
-                        Command::new("cp")
-                            .arg("-r")
-                            .arg(&dir_base)
-                            .arg(&dir_copia)
-                            .spawn()
-                    }) {
-                    Ok(_) => println!("{dir_base} => {dir_copia}"),
-                    Err(_) => eprintln!("No se pudo copiar \"{dir_base}\" a \"{dir_copia}\"")
-                }
+                    .unwrap();
+                copiar_directorio(dir_base, dir_copia);
             }
         } else if hay_cambios(&orig, &dest) {
             copy(&dir_base, &dir_copia).unwrap();
             println!("{dir_base} => {dir_copia}");
         }
     } else {
-        match Command::new("cp")
-            .arg("-r")
-            .arg(&dir_base)
-            .arg(&dir_copia)
-            .spawn()
-        {
-            Ok(_) => println!("{dir_base} => {dir_copia}"),
-            Err(_) => eprintln!("No se pudo copiar \"{dir_base}\" a \"{dir_copia}\"")
+        copiar_directorio(dir_base, dir_copia);
+    }
+}
+
+fn copiar_directorio(dir_base: String, dir_copia: String) {
+    std::fs::create_dir(&dir_copia).unwrap();
+    let subdirectorios = read_dir(&dir_base).unwrap();
+    for subdir in subdirectorios {
+        let ruta = subdir.unwrap().path();
+        let d = File::open(&ruta).unwrap();
+        if d.metadata().unwrap().is_dir() {
+            let dir = ruta.file_name().unwrap().to_str().unwrap();
+            let dir_orig = ruta.to_str().unwrap().to_string();
+            let dir_dest = format!("{dir_copia}/{dir}");
+            println!("{dir_orig} => {dir_dest}");
+            copiar_directorio(ruta.to_str().unwrap().to_string(), dir_dest);
+        } else {
+            copiar_archivo(ruta, &dir_copia);
         }
     }
+}
+
+fn copiar_archivo(dir_base: PathBuf, dir_copia: &String) {
+    let ruta = dir_base.to_str().unwrap().to_string();
+    let migas: Vec<&str> = ruta.split("/").collect();
+    let arch = migas.last().unwrap();
+    let ruta_dest = format!("{dir_copia}/{arch}");
+    copy(&ruta, &ruta_dest).unwrap();
+    println!("{ruta} => {ruta_dest}");
 }
 
 fn hay_cambios(orig: &File, dest: &File) -> bool {
