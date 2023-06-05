@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fs::read_to_string;
 
-pub fn cargar_diccionario() -> HashMap<String, String> {
+pub fn cargar() -> HashMap<String, String> {
     let mut d = HashMap::new();
     let conf = read_to_string("conf").expect("Error al cargar configuración");
     for rel in conf.lines() {

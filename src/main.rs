@@ -1,9 +1,9 @@
 use disco::actualizar_directorio;
-use disco::conf::cargar_diccionario;
+use disco::conf::cargar;
 
 fn main() {
-    let directorios = cargar_diccionario();
+    let directorios = cargar();
     for (c, v) in directorios {
-        actualizar_directorio(c, v);
+        actualizar_directorio(&c, &v);
     }
 }
