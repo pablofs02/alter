@@ -1,3 +1,4 @@
+pub mod conf;
 use std::fs::{copy, File};
 use std::io::{BufReader, Read};
 use std::process::Command;
@@ -17,7 +18,7 @@ pub fn actualizar_directorio(dir_base: String, dir_copia: String) {
                 .arg("-r")
                 .arg(&dir_base)
                 .arg(&dir_copia)
-                .output()
+                .spawn()
             {
                 Ok(_) => println!("{dir_base} => {dir_copia}"),
                 Err(_) => eprintln!("No se pudo copiar \"{dir_base}\" a \"{dir_copia}\"")
@@ -28,7 +29,7 @@ pub fn actualizar_directorio(dir_base: String, dir_copia: String) {
             .arg("-r")
             .arg(&dir_base)
             .arg(&dir_copia)
-            .output()
+            .spawn()
         {
             Ok(_) => println!("{dir_base} => {dir_copia}"),
             Err(_) => eprintln!("No se pudo copiar \"{dir_base}\" a \"{dir_copia}\"")
