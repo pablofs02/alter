@@ -10,19 +10,38 @@ pub fn actualizar_directorio(dir_base: String, dir_copia: String) {
         es_directorio = true;
     }
     if let Ok(dest) = File::open(&dir_copia) {
-        if !es_directorio && hay_cambios(&orig, &dest) {
-            copy(&dir_base, &dir_copia).unwrap();
-            println!("{dir_base} => {dir_copia}");
-        } else {
-            match Command::new("cp")
-                .arg("-r")
+        if es_directorio {
+            // Cambiar para que busque recursivamente
+            if Command::new("diff")
+                .arg("-rqN")
                 .arg(&dir_base)
                 .arg(&dir_copia)
-                .spawn()
+                .output()
+                .unwrap()
+                .stdout
+                .len()
+                != 0
             {
-                Ok(_) => println!("{dir_base} => {dir_copia}"),
-                Err(_) => eprintln!("No se pudo copiar \"{dir_base}\" a \"{dir_copia}\"")
+                match Command::new("rm")
+                    .arg("-rf")
+                    .arg(&dir_copia)
+                    .spawn()
+                    .expect("No se pudo eliminar")
+                    .wait()
+                    .and_then(|_| {
+                        Command::new("cp")
+                            .arg("-r")
+                            .arg(&dir_base)
+                            .arg(&dir_copia)
+                            .spawn()
+                    }) {
+                    Ok(_) => println!("{dir_base} => {dir_copia}"),
+                    Err(_) => eprintln!("No se pudo copiar \"{dir_base}\" a \"{dir_copia}\"")
+                }
             }
+        } else if hay_cambios(&orig, &dest) {
+            copy(&dir_base, &dir_copia).unwrap();
+            println!("{dir_base} => {dir_copia}");
         }
     } else {
         match Command::new("cp")
