@@ -19,17 +19,24 @@ pub fn actualizar_directorio(dir_base: &String, dir_copia: &String) {
                 actualizar_directorio(&ruta, &format!("{dir_copia}/{carpeta}"));
             }
         } else if hay_cambios(orig, dest) {
-            copy(&dir_base, &dir_copia).unwrap();
+            copy(&dir_base, &dir_copia).expect(&format!("{dir_base}>{dir_copia}"));
             println!("{dir_base} => {dir_copia}");
         }
     } else {
-        copiar_directorio(dir_base, dir_copia);
+        if es_directorio {
+            copiar_directorio(dir_base, dir_copia);
+        } else {
+            let ruta = PathBuf::from(dir_copia);
+            let ruta = ruta.parent().unwrap().to_str().unwrap();
+            std::fs::create_dir_all(ruta).unwrap();
+            copy(&dir_base, &dir_copia).expect(&format!("{dir_base}>{dir_copia}"));
+        }
     }
 }
 
 fn copiar_directorio(dir_base: &String, dir_copia: &String) {
-    std::fs::create_dir(&dir_copia).unwrap();
-    let subdirectorios = read_dir(&dir_base).unwrap();
+    std::fs::create_dir_all(&dir_copia).expect(dir_copia);
+    let subdirectorios = read_dir(&dir_base).expect(dir_base);
     for subdir in subdirectorios {
         let ruta = subdir.unwrap().path();
         let d = File::open(&ruta).unwrap();
