@@ -40,10 +40,10 @@ pub fn cargar() -> HashMap<String, String> {
         } else {
             format!("{origen}/{}", relatio[0].trim())
         };
-        let dir_copia = match relatio.get(1) {
-            Some(cont) => format!("{destino}/{}", cont.trim()),
-            None => format!("{destino}/{}", relatio[0].trim())
-        };
+        let dir_copia = relatio.get(1).map_or_else(
+            || format!("{destino}/{}", relatio[0].trim()),
+            |cont| format!("{destino}/{}", cont.trim())
+        );
         directorios.insert(dir_base, dir_copia);
     }
     directorios
