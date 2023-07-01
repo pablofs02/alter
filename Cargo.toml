@@ -7,7 +7,7 @@ description = "Analizador de texto"
 readme = "./quehacer"
 repository = "https://github.com/pablofs02/servidor/"
 license = "GPL-3.0-or-later"
-keywords = ["minimalista", "rust", "libre"]
+keywords = ["minimalista", "rust", "libre", "linux"]
 categories = []
 publish = false
 
