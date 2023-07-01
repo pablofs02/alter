@@ -11,6 +11,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                 File::open(dir_copia).map_or_else(
                     |_| {
                         copiar_directorio(dir_base, dir_copia);
+                        println!("{dir_base} -> {dir_copia}");
                     },
                     |_| {
                         let subdirs = read_dir(dir_base).unwrap();
@@ -22,8 +23,6 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                         }
                     }
                 );
-            } else {
-                println!("No existe un archivo que se intenta copiar: {dir_base}");
             }
         } else if tipo.is_file() {
             if let Ok(orig) = File::open(dir_base) {
@@ -34,6 +33,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                         std::fs::create_dir_all(ruta).unwrap();
                         copy(dir_base, dir_copia)
                             .unwrap_or_else(|_| panic!("{dir_base}>{dir_copia}"));
+                        println!("{dir_base} -> {dir_copia}");
                     },
                     |dest| {
                         if hay_cambios_nuevos(&orig, &dest) {
@@ -43,8 +43,6 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                         }
                     }
                 );
-            } else {
-                println!("No existe un archivo que se intenta copiar: {dir_base}");
             }
         } else if tipo.is_symlink() {
             if let Ok(puntero) = read_link(dir_copia) {
@@ -53,14 +51,14 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                     std::fs::remove_file(dir_copia).unwrap();
                     let enlace = read_link(dir_base).unwrap();
                     symlink(enlace, dir_copia).unwrap();
-                    println!("{dir_base} -> {dir_copia}");
                 }
             } else {
                 let enlace = read_link(dir_base).unwrap();
                 symlink(enlace, dir_copia).unwrap();
-                println!("{dir_base} -> {dir_copia}");
             }
         }
+    } else {
+        eprintln!("No existe un archivo que se intenta copiar: {dir_base}");
     }
 }
 
@@ -72,16 +70,15 @@ fn copiar_directorio(dir_base: &String, dir_copia: &String) {
         if let Ok(tipo) = symlink_metadata(&ruta) {
             if tipo.is_dir() {
                 let dir = ruta.file_name().unwrap().to_str().unwrap();
-                let dir_orig = ruta.to_str().unwrap().to_string();
                 let dir_dest = format!("{dir_copia}/{dir}");
-                println!("{dir_orig} -> {dir_dest}");
                 copiar_directorio(&ruta.to_str().unwrap().to_string(), &dir_dest);
             } else if tipo.is_file() {
                 copiar_archivo(&ruta, dir_copia);
             } else if tipo.is_symlink() {
-                let enlace = read_link(dir_base).unwrap();
-                symlink(enlace, dir_copia).unwrap();
-                println!("{dir_base} -> {dir_copia}");
+                let enlace = read_link(&ruta).unwrap();
+                let dir = ruta.file_name().unwrap().to_str().unwrap();
+                let dir_dest = format!("{dir_copia}/{dir}");
+                symlink(&enlace, &dir_dest).unwrap();
             }
         }
     }
@@ -92,7 +89,6 @@ fn copiar_archivo(dir_base: &Path, dir_copia: &str) {
     let ruta = dir_base.to_str().unwrap().to_string();
     let ruta_dest = format!("{dir_copia}/{arch}");
     copy(&ruta, &ruta_dest).unwrap();
-    println!("{ruta} -> {ruta_dest}");
 }
 
 fn hay_cambios_nuevos(orig: &File, dest: &File) -> bool {
