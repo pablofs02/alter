@@ -1,3 +1,4 @@
+use crate::var::cambiar_variables;
 use std::collections::HashMap;
 use std::env::var;
 use std::fs::read_to_string;
@@ -15,6 +16,7 @@ pub fn cargar() -> HashMap<String, String> {
         if regla.is_empty() {
             continue;
         }
+        let regla = cambiar_variables(&regla.replace('~', &home));
         if regla.starts_with('[') && regla.ends_with(']') {
             if regla.starts_with("[[") && regla.ends_with("]]") {
                 let contenido = &regla[2..(regla.len() - 2)];

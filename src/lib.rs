@@ -1,4 +1,5 @@
 pub mod conf;
+mod var;
 use std::fs::{copy, read_dir, read_link, symlink_metadata, File};
 use std::io::{BufReader, Read};
 use std::os::unix::fs::symlink;
