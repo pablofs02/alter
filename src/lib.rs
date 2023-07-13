@@ -1,5 +1,6 @@
 pub mod conf;
 mod var;
+
 use std::fs::{copy, read_dir, read_link, symlink_metadata, File};
 use std::io::{BufReader, Read};
 use std::os::unix::fs::symlink;
@@ -35,7 +36,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                         |_| {
                             let ruta = PathBuf::from(dir_copia);
                             let ruta = ruta.parent().unwrap().to_str().unwrap();
-                            std::fs::create_dir_all(ruta).expect(&ruta);
+                            std::fs::create_dir_all(ruta).expect(ruta);
                             copy(dir_base, dir_copia)
                                 .unwrap_or_else(|_| panic!("{dir_base}>{dir_copia}"));
                             println!("{dir_base} -> {dir_copia}");
@@ -88,15 +89,16 @@ fn copiar_directorio(dir_base: &String, dir_copia: &String) {
 }
 
 fn hay_cambios_nuevos(orig: &File, dest: &File) -> bool {
-    if orig.metadata().unwrap().modified().unwrap() < dest.metadata().unwrap().modified().unwrap() {
+    let meta_orig = orig.metadata().unwrap();
+    let meta_dest = dest.metadata().unwrap();
+    if meta_orig.modified().unwrap() < meta_dest.modified().unwrap() {
         return false;
     }
-    if orig.metadata().unwrap().len() != dest.metadata().unwrap().len() {
+    if meta_orig.len() != meta_dest.len() {
         return true;
-    } else {
-        if orig.metadata().unwrap().modified().unwrap() == dest.metadata().unwrap().modified().unwrap() {
-            return false;
-        }
+    }
+    if meta_orig.modified().unwrap() == meta_dest.modified().unwrap() {
+        return false;
     }
     let mut lector_orig = BufReader::new(orig);
     let mut lector_dest = BufReader::new(dest);

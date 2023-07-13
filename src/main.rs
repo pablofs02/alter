@@ -1,5 +1,5 @@
-use disco::conf::cargar;
-use disco::hacer_copia_de_seguridad;
+use discus::conf::cargar;
+use discus::hacer_copia_de_seguridad;
 
 fn main() {
     let directorios = cargar();

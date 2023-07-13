@@ -13,7 +13,7 @@ pub fn cambiar_variables(cadena: &str) -> String {
         match estado {
             Estado::Buscando => {
                 if c == '$' {
-                    estado = Estado::Tipificando
+                    estado = Estado::Tipificando;
                 } else {
                     respuesta.push(c);
                 }
@@ -56,12 +56,12 @@ pub fn cambiar_variables(cadena: &str) -> String {
             },
         }
     }
-    respuesta.to_owned()
+    respuesta.clone()
 }
 
 fn tomar_variable(cadena: &str) -> String {
     if let Ok(contenido) = std::env::var(cadena) {
         return contenido;
     }
-    return "".to_owned();
+    String::new()
 }
