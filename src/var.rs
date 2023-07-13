@@ -2,7 +2,7 @@ enum Estado {
     Buscando,
     Tipificando,
     Variable,
-    VariableCerrada
+    VariableCerrada,
 }
 
 pub fn cambiar_variables(cadena: &str) -> String {
@@ -53,7 +53,7 @@ pub fn cambiar_variables(cadena: &str) -> String {
                     respuesta.push(c);
                     estado = Estado::Buscando;
                 }
-            }
+            },
         }
     }
     respuesta.to_owned()

@@ -32,7 +32,7 @@ pub fn cargar() -> HashMap<String, String> {
             if let Some(cont) = contenido.get(1) {
                 destino = format!("{disco}/{}", cont.trim());
             } else {
-                destino = disco.clone();
+                destino = format!("{disco}/{}", contenido[0]);
             }
             continue;
         }
@@ -44,7 +44,7 @@ pub fn cargar() -> HashMap<String, String> {
         };
         let dir_copia = relatio.get(1).map_or_else(
             || format!("{destino}/{}", relatio[0].trim()),
-            |cont| format!("{destino}/{}", cont.trim())
+            |cont| format!("{destino}/{}", cont.trim()),
         );
         directorios.insert(dir_base, dir_copia);
     }

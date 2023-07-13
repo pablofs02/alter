@@ -26,7 +26,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                                 let ruta = subdir.path().to_str().unwrap().to_string();
                                 hacer_copia_de_seguridad(&ruta, &format!("{dir_copia}/{carpeta}"));
                             }
-                        }
+                        },
                     );
                 }
             } else if tipo.is_file() {
@@ -35,7 +35,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                         |_| {
                             let ruta = PathBuf::from(dir_copia);
                             let ruta = ruta.parent().unwrap().to_str().unwrap();
-                            std::fs::create_dir_all(ruta).unwrap();
+                            std::fs::create_dir_all(ruta).expect(&ruta);
                             copy(dir_base, dir_copia)
                                 .unwrap_or_else(|_| panic!("{dir_base}>{dir_copia}"));
                             println!("{dir_base} -> {dir_copia}");
@@ -46,7 +46,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                                     .unwrap_or_else(|_| panic!("{dir_base}>{dir_copia}"));
                                 println!("{dir_base} -> {dir_copia}");
                             }
-                        }
+                        },
                     );
                 }
             } else if tipo.is_symlink() {
@@ -62,7 +62,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                     println!("{dir_base} -> {dir_copia}");
                 }
             }
-        }
+        },
     );
 }
 
@@ -78,7 +78,7 @@ fn copiar_directorio(dir_base: &String, dir_copia: &String) {
                 copiar_directorio(&ruta.to_str().unwrap().to_string(), &dir_dest);
             } else if tipo.is_file() {
                 let ruta = ruta.to_str().unwrap().to_string();
-                copy(&ruta, &dir_dest).unwrap();
+                copy(&ruta, &dir_dest).expect(&ruta);
             } else if tipo.is_symlink() {
                 let enlace = read_link(&ruta).unwrap();
                 symlink(&enlace, &dir_dest).unwrap();
@@ -93,6 +93,10 @@ fn hay_cambios_nuevos(orig: &File, dest: &File) -> bool {
     }
     if orig.metadata().unwrap().len() != dest.metadata().unwrap().len() {
         return true;
+    } else {
+        if orig.metadata().unwrap().modified().unwrap() == dest.metadata().unwrap().modified().unwrap() {
+            return false;
+        }
     }
     let mut lector_orig = BufReader::new(orig);
     let mut lector_dest = BufReader::new(dest);
