@@ -1,4 +1,4 @@
-use crate::var::cambiar_variables;
+use crate::variable::cambiar_variables;
 use std::collections::HashMap;
 use std::env::var;
 use std::fs::read_to_string;
