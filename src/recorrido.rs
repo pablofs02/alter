@@ -14,7 +14,7 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                     File::open(dir_copia).map_or_else(
                         |_| {
                             copiar_directorio(dir_base, dir_copia);
-                            println!("{dir_base} -> {dir_copia}");
+                            informar(dir_base, dir_copia);
                         },
                         |_| {
                             let subdirs = read_dir(dir_base).unwrap();
@@ -36,13 +36,13 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                             std::fs::create_dir_all(ruta).expect(ruta);
                             copy(dir_base, dir_copia)
                                 .unwrap_or_else(|_| panic!("{dir_base}>{dir_copia}"));
-                            println!("{dir_base} -> {dir_copia}");
+                            informar(dir_base, dir_copia);
                         },
                         |dest| {
                             if hay_cambios_nuevos(&orig, &dest) {
                                 copy(dir_base, dir_copia)
                                     .unwrap_or_else(|_| panic!("{dir_base}>{dir_copia}"));
-                                println!("{dir_base} -> {dir_copia}");
+                                informar(dir_base, dir_copia);
                             }
                         },
                     );
@@ -53,11 +53,11 @@ pub fn hacer_copia_de_seguridad(dir_base: &String, dir_copia: &String) {
                     if puntero != enlace {
                         std::fs::remove_file(dir_copia).unwrap();
                         symlink(enlace, dir_copia).unwrap();
-                        println!("{dir_base} -> {dir_copia}");
+                        informar(dir_base, dir_copia);
                     }
                 } else {
                     symlink(enlace, dir_copia).unwrap();
-                    println!("{dir_base} -> {dir_copia}");
+                    informar(dir_base, dir_copia);
                 }
             }
         },
@@ -82,5 +82,11 @@ fn copiar_directorio(dir_base: &String, dir_copia: &String) {
                 symlink(&enlace, &dir_dest).unwrap();
             }
         }
+    }
+}
+
+fn informar(dir_base: &str, dir_copia: &str) {
+    if !dir_base.contains(".git") && !dir_base.contains("target") {
+        println!("{dir_base} -> {dir_copia}");
     }
 }
