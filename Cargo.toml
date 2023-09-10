@@ -1,5 +1,5 @@
 [package]
-name = "discus"
+name = "alter"
 version = "0.1.0"
 authors = ["Pablo Fernández Serrano <pablofs02@tutanota.com>"]
 edition = "2021"

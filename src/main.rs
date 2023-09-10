@@ -1,16 +1,19 @@
-use discus::config::cargar;
-use discus::hacer_copia_de_seguridad;
+use alter::config;
+use alter::hacer_copia_de_seguridad;
+use std::process::exit;
 
 fn main() {
-    let directorios = cargar();
     let args: Vec<String> = std::env::args().collect();
-    if args.get(1).is_some() {
-        for (origen, destino) in directorios {
-            hacer_copia_de_seguridad(&destino, &origen);
-        }
-    } else {
-        for (origen, destino) in directorios {
-            hacer_copia_de_seguridad(&origen, &destino);
-        }
+    let disco = args.get(1).unwrap_or_else(|| {
+        mensaje_de_ayuda();
+        exit(0);
+    });
+    let directorios = config::cargar(disco);
+    for (origen, destino) in directorios {
+        hacer_copia_de_seguridad(&origen, &destino);
     }
+}
+
+fn mensaje_de_ayuda() {
+    println!("Modo de empleo: alter <carpeta>");
 }
