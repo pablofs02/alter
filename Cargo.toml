@@ -5,8 +5,11 @@ authors = ["Pablo Fernández Serrano <pablofs02@tutanota.com>"]
 edition = "2021"
 description = "Gestor de copias de seguridad"
 readme = "DOCTRINA"
-repository = "https://github.com/pablofs02/servidor/"
+repository = "https://github.com/pablofs02/alter/"
 license = "GPL-3.0-or-later"
 keywords = ["minimalista", "rust", "libre", "linux"]
 categories = []
 publish = false
+
+[dependencies]
+ultimus = { path = "../ultimus" }

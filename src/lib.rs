@@ -1,6 +1,6 @@
 mod cambios;
-pub mod config;
-mod recorrido;
+pub mod opciones;
+mod copia;
 mod variable;
 
-pub use recorrido::hacer_copia_de_seguridad;
+pub use copia::hacer_copia_de_seguridad;

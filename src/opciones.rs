@@ -3,16 +3,20 @@ use std::collections::HashMap;
 use std::env::var;
 use std::fs::read_to_string;
 
+/// Genera un diccionario de copias a partir de un archivo de configuración
+///
+/// Recoge el archivo definido en la variable ~$ALTER~
+/// El archivo por defecto se encuentra en /home/---/.config/alter
 #[must_use]
 pub fn cargar(disco: &String) -> HashMap<String, String> {
     let mut directorios = HashMap::new();
-    let home = var("HOME").unwrap_or_else(|_| "/home".to_owned());
+    let home = var("HOME").unwrap();
     let mut origen = String::from(&home);
     let mut destino: String = String::from(disco);
-    let ruta_archivo_conf = format!("{home}/.config/disco");
+    let ruta_archivo_conf = var("ALTER").unwrap_or(format!("{home}/.config/alter"));
     let archivo_conf = read_to_string(ruta_archivo_conf).expect("Error al cargar configuración");
     for regla in archivo_conf.lines() {
-        if regla.is_empty() {
+        if regla.is_empty() || regla.starts_with('#') {
             continue;
         }
         let regla = cambiar_variables(&regla.replace('~', &home));
@@ -23,11 +27,11 @@ pub fn cargar(disco: &String) -> HashMap<String, String> {
             } else {
                 format!("{home}/{}", contenido[0].trim())
             };
-            if let Some(cont) = contenido.get(1) {
-                destino = format!("{disco}/{}", cont.trim());
+            destino = if let Some(cont) = contenido.get(1) {
+                format!("{disco}/{}", cont.trim())
             } else {
-                destino = format!("{disco}/{}", contenido[0]);
-            }
+                format!("{disco}")
+            };
             continue;
         }
         let relatio: Vec<&str> = regla.split("->").collect();
