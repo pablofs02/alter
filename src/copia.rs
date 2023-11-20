@@ -74,6 +74,9 @@ pub fn hacer_copia_de_seguridad(dir_orig: &String, dir_dest: &String) {
 }
 
 fn copiar_directorio(dir_orig: &String, dir_dest: &String) {
+    if  dir_orig.ends_with("target") {
+        return
+    }
     fs::create_dir_all(dir_dest).expect(dir_dest);
     let subdirectorios = fs::read_dir(dir_orig).expect(dir_orig);
     for subdir in subdirectorios {
@@ -105,7 +108,7 @@ fn copiar_archivo(dir_orig: &str, dir_dest: &str) {
 }
 
 fn informar(dir_orig: &str, dir_dest: &str) {
-    if !dir_orig.contains(".git") && !dir_orig.contains("target") {
+    if !dir_orig.contains(".git") {
         if es_output_de_terminal() {
             println!("{dir_orig} \x1b[31m->\x1b[m {dir_dest}");
         } else {

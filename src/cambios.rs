@@ -19,11 +19,9 @@ pub fn hay_cambios_en_contenido(orig: &File, dest: &File) -> bool {
     let mut lector_dest = BufReader::new(dest);
     let mut buf_orig = [0; 65536];
     let mut buf_dest = [0; 65536];
-    while let Ok(_) = lector_orig.read(&mut buf_orig) {
-        if let Ok(_) = lector_dest.read(&mut buf_dest) {
-            if buf_orig == buf_dest {
-                continue;
-            }
+    while lector_orig.read(&mut buf_orig).is_ok_and(|n| n != 0) {
+        lector_dest.read(&mut buf_dest).unwrap();
+        if buf_orig != buf_dest {
             return true;
         }
     }
