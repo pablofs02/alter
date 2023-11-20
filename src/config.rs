@@ -6,38 +6,32 @@ use std::fs::read_to_string;
 /// Genera un diccionario de copias a partir de un archivo de configuración
 ///
 /// Recoge el archivo definido en la variable ~$ALTER~
-/// El archivo por defecto se encuentra en /home/---/.config/alter
+/// Solo recoge las transmutatio contenidas en el modulus especificado.
 #[must_use]
-pub fn cargar_modulus(disco: &str, modulus: Option<&str>) -> HashMap<String, String> {
-    // ¡BUSCAR SOLO EN EL MODULUS INDICADO!
+pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMap<String, String> {
     let mut directorios = HashMap::new();
     let home = var("HOME").unwrap();
     let mut origen = String::from(&home);
     let mut destino: String = String::from(disco);
     let ruta_archivo_conf = var("ALTER").unwrap_or(format!("{home}/.config/alter"));
     let archivo_conf = read_to_string(ruta_archivo_conf).expect("Error al cargar configuración");
+    let mut normas_it = archivo_conf.lines();
     // Buscar el modulus elegido
     if modulus.is_some() {
-        for norma in archivo_conf.lines() {
+        let mut normas = normas_it.next();
+        while normas.is_some() {
+            let norma = normas.unwrap();
             if norma.starts_with('[') && norma.ends_with(']') {
                 let contenido = &norma[1..(norma.len() - 1)];
-                println!("{:?}", contenido);
-                //     origen = if contenido[0].starts_with('/') {
-                //         String::from(contenido[0].trim())
-                //     } else {
-                //         format!("{home}/{}", contenido[0].trim())
-                //     };
-                //     destino = if let Some(cont) = contenido.get(1) {
-                //         format!("{disco}/{}", cont.trim())
-                //     } else {
-                //         format!("{disco}")
-                //     };
-                continue;
+                if contenido == modulus.unwrap() {
+                    break;
+                }
             }
+            normas = normas_it.next();
         }
     }
     // Sacar las transmutaciones del modulus
-    for norma in archivo_conf.lines() {
+    for norma in normas_it {
         if norma.is_empty() || norma.starts_with('#') {
             continue;
         }
