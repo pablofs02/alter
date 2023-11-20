@@ -6,16 +6,12 @@ use std::fs::read_to_string;
 ///
 /// Recoge el archivo definido en la variable ~$ALTER~
 /// Solo recoge las transmutatio contenidas en el modulus especificado.
-#[must_use]
 pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMap<String, String> {
+    let archivo_conf = cargar_archivo();
     let mut directorios = HashMap::new();
-    let home = var("HOME").unwrap();
-    let mut origen = String::from(&home);
+    let mut origen = String::from('.');
     let mut destino: String = String::from(disco);
-    let ruta_archivo_conf = var("ALTER").unwrap_or(format!("{home}/.config/alter"));
-    let archivo_conf = read_to_string(ruta_archivo_conf).expect("Error al cargar configuración");
     let mut normas_it = archivo_conf.lines();
-    // Buscar el modulus elegido
     if modulus.is_some() {
         let mut normas = normas_it.next();
         while normas.is_some() {
@@ -29,7 +25,6 @@ pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMa
             normas = normas_it.next();
         }
     }
-    // Sacar las transmutaciones del modulus
     for norma in normas_it {
         if norma.trim_start().is_empty() || norma.trim_start().starts_with('#') {
             continue;
@@ -39,7 +34,7 @@ pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMa
             origen = if contenido[0].starts_with('/') {
                 String::from(contenido[0].trim())
             } else {
-                format!("{home}/{}", contenido[0].trim())
+                contenido[0].trim().to_owned()
             };
             destino = if let Some(cont) = contenido.get(1) {
                 format!("{disco}/{}", cont.trim())
@@ -64,4 +59,18 @@ pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMa
         directorios.insert(dir_base, dir_copia);
     }
     directorios
+}
+
+fn cargar_archivo() -> String {
+    let home = var("HOME").unwrap();
+    if let Ok(config) = var("ALTER") {
+        config
+    } else if let Ok(config_home) = read_to_string(format!("{home}/.config/alter")) {
+        config_home
+    } else if let Ok(config_etc) = read_to_string("/etc/alter") {
+        config_etc
+    } else {
+        eprintln!("No se encontró el archivo de configuración.");
+        std::process::exit(1);
+    }
 }
