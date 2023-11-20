@@ -1,4 +1,3 @@
-use crate::variable::cambiar_variables;
 use std::collections::HashMap;
 use std::env::var;
 use std::fs::read_to_string;
@@ -35,9 +34,8 @@ pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMa
         if norma.trim_start().is_empty() || norma.trim_start().starts_with('#') {
             continue;
         }
-        let regla = cambiar_variables(&norma.replace('~', &home));
-        if regla.starts_with('>') {
-            let contenido: Vec<&str> = regla[1..].trim().split("->").collect();
+        if norma.starts_with('>') {
+            let contenido: Vec<&str> = norma[1..].trim().split("->").collect();
             origen = if contenido[0].starts_with('/') {
                 String::from(contenido[0].trim())
             } else {
@@ -50,10 +48,10 @@ pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMa
             };
             continue;
         }
-        if regla.starts_with('[') && regla.ends_with(']') {
+        if norma.starts_with('[') && norma.ends_with(']') {
             break;
         }
-        let relatio: Vec<&str> = regla.split("->").collect();
+        let relatio: Vec<&str> = norma.split("->").collect();
         let dir_base = if relatio[0].starts_with('/') {
             String::from(relatio[0].trim())
         } else {
