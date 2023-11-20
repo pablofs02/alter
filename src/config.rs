@@ -32,11 +32,11 @@ pub fn cargar_modulus_transmutatio(disco: &str, modulus: Option<&str>) -> HashMa
     }
     // Sacar las transmutaciones del modulus
     for norma in normas_it {
-        if norma.is_empty() || norma.starts_with('#') {
+        if norma.trim_start().is_empty() || norma.trim_start().starts_with('#') {
             continue;
         }
         let regla = cambiar_variables(&norma.replace('~', &home));
-        if regla.starts_with('-') {
+        if regla.starts_with('>') {
             let contenido: Vec<&str> = regla[1..].trim().split("->").collect();
             origen = if contenido[0].starts_with('/') {
                 String::from(contenido[0].trim())
